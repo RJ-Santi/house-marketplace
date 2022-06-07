@@ -1,27 +1,32 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import {toast} from 'react-toastify'
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { toast } from 'react-toastify'
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth'
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
+import Oauth from '../components/Oauth'
 
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
   })
-  const {name, email, password} = formData
+  const { name, email, password } = formData
 
   const navigate = useNavigate()
 
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
-    [e.target.id]: e.target.value
+      [e.target.id]: e.target.value,
     }))
   }
 
@@ -31,57 +36,91 @@ function SignUp() {
     try {
       const auth = getAuth()
 
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
 
       const user = userCredential.user
 
       updateProfile(auth.currentUser, {
-        displayName: name
+        displayName: name,
       })
 
-      const formDataCopy = {...formData}
+      const formDataCopy = { ...formData }
       delete formDataCopy.password
       formDataCopy.timestamp = serverTimestamp()
 
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
 
       navigate('/')
-    } catch(error) {
+    } catch (error) {
       toast.error('Something went wrong with registration. Please try again.')
     }
   }
 
   return (
     <>
-      <div className="pageContainer">
+      <div className='pageContainer'>
         <header>
-          <p className="pageHeader">Welcome Back!</p>
+          <p className='pageHeader'>Welcome Back!</p>
         </header>
 
-        <form onSubmit={onSubmit} >
-          <input type="text" className='nameInput' placeholder='Name' id='name' value={name} onChange={onChange} />
+        <form onSubmit={onSubmit}>
+          <input
+            type='text'
+            className='nameInput'
+            placeholder='Name'
+            id='name'
+            value={name}
+            onChange={onChange}
+          />
 
-          <input type="email" className='emailInput' placeholder='Email' id='email' value={email} onChange={onChange} />
+          <input
+            type='email'
+            className='emailInput'
+            placeholder='Email'
+            id='email'
+            value={email}
+            onChange={onChange}
+          />
 
-          <div className="passwordInputDiv">
-            <input type={showPassword ? 'text' : 'password'} className='passwordInput' placeholder='Password' id='password' value={password} onChange={onChange}/>
+          <div className='passwordInputDiv'>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className='passwordInput'
+              placeholder='Password'
+              id='password'
+              value={password}
+              onChange={onChange}
+            />
 
-            <img src={visibilityIcon} alt="Show password" className="showPassword" onClick={() => setShowPassword((prevState) => !prevState)} />
+            <img
+              src={visibilityIcon}
+              alt='Show password'
+              className='showPassword'
+              onClick={() => setShowPassword((prevState) => !prevState)}
+            />
           </div>
 
-          <Link to='/forgot-password' className='forgotPasswordLink'>Forgot Password</Link>
+          <Link to='/forgot-password' className='forgotPasswordLink'>
+            Forgot Password
+          </Link>
 
-          <div className="signUpBar">
-            <p className="signUpText">Sign Up</p>
-            <button className="signUpButton">
+          <div className='signUpBar'>
+            <p className='signUpText'>Sign Up</p>
+            <button className='signUpButton'>
               <ArrowRightIcon fill='#ffffff' width='34px' height='34px' />
             </button>
           </div>
         </form>
 
-        {/* Google oAuth */}
+        <Oauth />
 
-        <Link to='/sign-in' className='registerLink'>Already Have an Account?</Link>
+        <Link to='/sign-in' className='registerLink'>
+          Already Have an Account?
+        </Link>
       </div>
     </>
   )
