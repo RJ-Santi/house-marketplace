@@ -1,9 +1,11 @@
-import {useEffect, useState} from 'react'
-import {getAuth, updateProfile} from 'firebase/auth'
-import {useNavigate, Link} from 'react-router-dom'
-import {updateDoc, doc} from 'firebase/firestore'
-import {db} from '../firebase.config'
-import {toast} from 'react-toastify'
+import { useEffect, useState } from 'react'
+import { getAuth, updateProfile } from 'firebase/auth'
+import { useNavigate, Link } from 'react-router-dom'
+import { updateDoc, doc } from 'firebase/firestore'
+import { db } from '../firebase.config'
+import { toast } from 'react-toastify'
+import arrowRight from '../assets/svg/keyboardArrowRightIcon.svg'
+import homeIcon from '../assets/svg/homeIcon.svg'
 
 function Profile() {
   const auth = getAuth()
@@ -13,7 +15,7 @@ function Profile() {
     email: auth.currentUser.email,
   })
 
-  const {name, email} = formData
+  const { name, email } = formData
 
   const navigate = useNavigate('/')
 
@@ -23,19 +25,19 @@ function Profile() {
 
   const onSubmit = async () => {
     try {
-      if(auth.currentUser.displayName !== name) {
+      if (auth.currentUser.displayName !== name) {
         // update display name in firebase
         await updateProfile(auth.currentUser, {
-          displayName: name
+          displayName: name,
         })
         // update in firestore
         const userRef = doc(db, 'users', auth.currentUser.uid)
         await updateDoc(userRef, {
-          name
+          name,
         })
-      toast.success('User information has been successfully changed.')
+        toast.success('User information has been successfully changed.')
       }
-    } catch(error){
+    } catch (error) {
       toast.error('Could not update profile details.')
     }
   }
@@ -49,29 +51,56 @@ function Profile() {
 
   return (
     <>
-      <div className="profile">
-        <header className="profileHeader">
-          <p className="pageHeader">My Profile</p>
-          <button type='button' className="logOut" onClick={onLogout}>Logout</button>
+      <div className='profile'>
+        <header className='profileHeader'>
+          <p className='pageHeader'>My Profile</p>
+          <button type='button' className='logOut' onClick={onLogout}>
+            Logout
+          </button>
         </header>
 
         <main>
-          <div className="profileDetailsHeader">
-            <p className="profileDetailsText">Personal Details</p>
-            <p className="changePersonalDetails" onClick={() => {
-              changeDetails && onSubmit()
-              setChangeDetails((prevState) => !prevState)
-            }}>
+          <div className='profileDetailsHeader'>
+            <p className='profileDetailsText'>Personal Details</p>
+            <p
+              className='changePersonalDetails'
+              onClick={() => {
+                changeDetails && onSubmit()
+                setChangeDetails((prevState) => !prevState)
+              }}
+            >
               {changeDetails ? 'done' : 'change'}
             </p>
           </div>
 
-          <div className="profileCard">
+          <div className='profileCard'>
             <form>
-              <input type="text" id='name' className={!changeDetails ? 'profileName' : 'profileNameActive'} disabled={!changeDetails} value={name} onChange={onChange} />
-              <input type="text" id='email' className={!changeDetails ? 'profileEmail' : 'profileEmailActive'} disabled={!changeDetails} value={email} onChange={onChange} />
+              <input
+                type='text'
+                id='name'
+                className={!changeDetails ? 'profileName' : 'profileNameActive'}
+                disabled={!changeDetails}
+                value={name}
+                onChange={onChange}
+              />
+              <input
+                type='text'
+                id='email'
+                className={
+                  !changeDetails ? 'profileEmail' : 'profileEmailActive'
+                }
+                disabled={!changeDetails}
+                value={email}
+                onChange={onChange}
+              />
             </form>
           </div>
+
+          <Link to='/create-listing' className='createListing'>
+            <img src={homeIcon} alt='home' />
+            <p>Sell or rent your property.</p>
+            <img src={arrowRight} alt='arrow right' />
+          </Link>
         </main>
       </div>
     </>
