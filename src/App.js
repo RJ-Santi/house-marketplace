@@ -21,6 +21,7 @@ function App() {
           <Route path='/' element={<Explore />} />
           <Route path='/offers' element={<Offers />} />
           <Route path='/category/:categoryName' element={<Category />} />
+          {/* Using private route to show route for only authenticated users */}
           <Route path='/profile' element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
           </Route>
