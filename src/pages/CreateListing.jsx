@@ -6,6 +6,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -114,7 +115,6 @@ function CreateListing() {
     } else {
       geolocation.lat = latitude
       geolocation.lng = longitude
-      location = address
     }
 
     // Store image in firebase - documentation found here https://firebase.google.com/docs/storage/web/upload-files
@@ -156,7 +156,7 @@ function CreateListing() {
       })
     }
 
-    const imgUrls = await Promise.all(
+    const imageUrls = await Promise.all(
       [...images].map((image) => storeImage(image))
     ).catch(() => {
       setLoading(false)
@@ -164,7 +164,28 @@ function CreateListing() {
       return
     })
 
+    // Object that gets submitted to the database
+    const formDataCopy = {
+      ...formData,
+      imageUrls,
+      geolocation,
+      timestamp: serverTimestamp(),
+    }
+
+    // Sets object location to whatever address user inputs in case of geolocation not usable
+    formDataCopy.location = address
+    // Omit images and address values from formdata object since submitting imageUrls and geolocation
+    delete formDataCopy.images
+    delete formDataCopy.address
+    // Remove discounted price from object if no offer
+    !formData.offer && delete formDataCopy.discountedPrice
+
+    // Save to database
+    const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
+
     setLoading(false)
+    toast.success('Listing saved.')
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
   }
 
   const onMutate = (e) => {
