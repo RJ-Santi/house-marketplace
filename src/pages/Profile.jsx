@@ -21,6 +21,7 @@ function Profile() {
 
   const onLogout = () => {
     auth.signOut()
+    window.location.reload()
   }
 
   const onSubmit = async () => {

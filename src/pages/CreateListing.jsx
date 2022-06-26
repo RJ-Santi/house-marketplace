@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
 import Spinner from '../components/Spinner'
-import { toHaveStyle } from '@testing-library/jest-dom/dist/matchers'
 
 function CreateListing() {
   const [geoLocationEnabled, setGeoLocationEnabled] = useState(true)
@@ -140,6 +139,8 @@ function CreateListing() {
               case 'running':
                 console.log('Upload is running')
                 break
+
+              // no default
             }
           },
           (error) => {

@@ -22,7 +22,6 @@ function Listing() {
 
       // Verify that the docSnap exists and setListing if it does
       if (docSnap.exists()) {
-        console.log(docSnap.data())
         setListing(docSnap.data())
         setLoading(false)
       }
@@ -31,7 +30,36 @@ function Listing() {
     fetchListing()
   }, [navigate, params.listingId])
 
-  return <div>Listing</div>
+  if (loading) {
+    return <Spinner />
+  }
+
+  return (
+    <main>
+      {/* Slider  */}
+      <div
+        className='shareIconDiv'
+        onClick={() => {
+          navigator.clipboard.writeText(window.location.href)
+          setShareLinkCopied(true)
+          setTimeout(() => {
+            setShareLinkCopied(false)
+          }, 2000)
+        }}
+      >
+        <img src={shareIcon} alt='' />
+      </div>
+
+      {shareLinkCopied && <p className='linkCopied'>Link Copied</p>}
+
+      <div className='listingDetails'>
+        <p className='listingName'>
+          {listing.name} -{' '}
+          {listing.offer ? listing.discountedPrice : listing.regularPrice}{' '}
+        </p>
+      </div>
+    </main>
+  )
 }
 
 export default Listing
