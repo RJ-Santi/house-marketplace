@@ -120,7 +120,7 @@ function CreateListing() {
     const storeImage = async (image) => {
       return new Promise((resolve, reject) => {
         const storage = getStorage()
-        const fileName = `{auth.currentUser.uid}-${image.name}-${uuidv4()}`
+        const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`
 
         const storageRef = ref(storage, 'images/' + fileName)
 
@@ -139,8 +139,8 @@ function CreateListing() {
               case 'running':
                 console.log('Upload is running')
                 break
-
-              // no default
+              default:
+                break
             }
           },
           (error) => {
@@ -161,7 +161,7 @@ function CreateListing() {
       [...images].map((image) => storeImage(image))
     ).catch(() => {
       setLoading(false)
-      toast.error('Images failed to upload.')
+      toast.error('Images not uploaded')
       return
     })
 
