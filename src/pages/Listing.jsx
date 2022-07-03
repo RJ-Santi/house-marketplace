@@ -17,7 +17,7 @@ function Listing() {
 
   useEffect(() => {
     const fetchListing = async () => {
-      const docRef = doc(db, 'listing', params.listingId)
+      const docRef = doc(db, 'listings', params.listingId)
       const docSnap = await getDoc(docRef)
 
       // Verify that the docSnap exists and setListing if it does
@@ -54,9 +54,51 @@ function Listing() {
 
       <div className='listingDetails'>
         <p className='listingName'>
-          {listing.name} -{' '}
-          {listing.offer ? listing.discountedPrice : listing.regularPrice}{' '}
+          {listing.name} - $
+          {listing.offer
+            ? listing.discountedPrice
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : listing.regularPrice
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
         </p>
+        <p className='listingLocation'>{listing.location}</p>
+        <p className='listingType'>
+          For {listing.type === 'rent' ? 'Rent' : 'Sale'}
+        </p>
+        {listing.offer && (
+          <p className='discountedPrice'>
+            ${listing.regularPrice - listing.discountedPrice} Discount
+          </p>
+        )}
+
+        <ul className='listingDetailsList'>
+          <li>
+            {listing.bedrooms > 1
+              ? `${listing.bedrooms} Bedrooms`
+              : '1 Bedroom'}
+          </li>
+          <li>
+            {listing.bathrooms > 1
+              ? `${listing.bathrooms} Bathrooms`
+              : '1 Bathroom'}
+          </li>
+          <li>{listing.parking && 'Parking Spot'}</li>
+          <li>{listing.furnished && 'Furnished'}</li>
+        </ul>
+
+        <p className='listingLocationTitle'>Location</p>
+        {/* map */}
+
+        {auth.currentUser?.uid !== listing.userRef && (
+          <Link
+            to={`/contact/${listing.userRef}?listingName=${listing.name}&listingLocation=${listing.location}`}
+            className='primaryButton'
+          >
+            Contact {listing.type === 'rent' ? 'Landlord' : 'Owner'}
+          </Link>
+        )}
       </div>
     </main>
   )
